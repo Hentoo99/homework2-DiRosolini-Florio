@@ -2,13 +2,15 @@ import requests
 import time
 import os
 from flask import jsonify
-
+import circuitBreaker
 
 CLIENT_ID = os.environ.get('OPENSKY_USERNAME')
 CLIENT_SECRET = os.environ.get('OPENSKY_PASSWORD')
 
 AUTH_URL = "https://auth.opensky-network.org/auth/realms/opensky-network/protocol/openid-connect/token"
 API_BASE_URL = "https://opensky-network.org/api"
+
+cb = circuitBreaker.CircuitBreaker(failure_threshold=3, recovery_timeout=1)
 
 def get_access_token():
   
@@ -31,6 +33,12 @@ def get_access_token():
         if response.text:
             print(f"Dettaglio errore server: {response.text}")
         return None
+    
+def chiamata(url, params=None, headers=None, timeout=10):
+    print(f"Effettuo chiamata a {url} con params {params} e headers {headers}")
+    response = requests.get(url, params=params, headers=headers, timeout=timeout)
+    response.raise_for_status()
+    return response
     
 
 def opensky_api_request(airport_code, hours_back, flight_type):
@@ -63,19 +71,14 @@ def opensky_api_request(airport_code, hours_back, flight_type):
         headers = {
             'Authorization': f"Bearer {token}"
         }
-
         try:
-            print(f"Richiedo dati per {airport_code} usando OAuth2...")
-            response = requests.get(url, params=params, headers=headers, timeout=10)
-            response.raise_for_status()
-            flights.extend(response.json())
-        except requests.exceptions.RequestException as e:
-            print(f"Errore OpenSky API: {e}")
-            if response.status_code == 401:
-                print("Token scaduto o non valido.")
-            if response.status_code == 404:
-                print("Nessun dato trovato per questo intervallo di tempo.")
-        
+            response = cb.call(chiamata, url, params=params, headers=headers, timeout=15)
+            data = response.json()
+            print(f"Ricevuti {len(data)} voli dal chunk {sv} to {timeSv}")
+            flights.extend(data)
+        except Exception as e:
+            print(f"Errore durante la chiamata OpenSky API: {e}")
+
         timeSv = sv
     print(f"Totale voli recuperati: {len(flights)}")
     return flights

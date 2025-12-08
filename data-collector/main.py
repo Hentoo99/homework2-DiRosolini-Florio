@@ -20,6 +20,7 @@ app = flask.Flask(__name__)
 MONGO_URI = os.getenv('MONGO_URI', 'mongodb://localhost:27017')
 client = MongoClient(MONGO_URI)
 db = client.flight_data_db
+days = 10
 
 users_interests_collection = db.interests   
 flights_collection_arrival = db.flights_arrival
@@ -65,7 +66,7 @@ def update_flight_data():
         print(f"Scaricamento dati per: {airport}...")
        
        
-        flightsArrival = collector.get_arrivals_by_airport(airport, hours_back=24*5)
+        flightsArrival = collector.get_arrivals_by_airport(airport, hours_back=24*days)
         if flightsArrival:
             try:
                 for f in flightsArrival:
@@ -76,7 +77,7 @@ def update_flight_data():
             except Exception as e:
                 print(f"Errore salvataggio Mongo arrival: {e}")
         
-        flightsDepartures = collector.get_departures_by_airport(airport, hours_back=24*5)
+        flightsDepartures = collector.get_departures_by_airport(airport, hours_back=24*days)
         if flightsDepartures:
             try:
                 for f in flightsDepartures:
