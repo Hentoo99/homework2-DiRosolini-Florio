@@ -43,6 +43,8 @@ def chiamata(url, params=None, headers=None, timeout=10):
 
 def opensky_api_request(airport_code, hours_back, flight_type):
     token = get_access_token()
+    print("Access token ottenuto:")
+    print(token)
     print(f"Flight type: {flight_type}, Airport: {airport_code}, Hours back: {hours_back}")
     if not token:
         return []
@@ -50,7 +52,7 @@ def opensky_api_request(airport_code, hours_back, flight_type):
     print(f"End time: {end_time}")
     start_time = end_time - (hours_back * 3600)
 
-    chunk_size = 24 * 3600 
+    chunk_size = 8 * 3600 
 
     timeSv = end_time
     flights = []
@@ -71,6 +73,8 @@ def opensky_api_request(airport_code, hours_back, flight_type):
         headers = {
             'Authorization': f"Bearer {token}"
         }
+        print("Effettuando chiamata OpenSky API:")
+        print(url, params, headers)
         try:
             response = cb.call(chiamata, url, params=params, headers=headers, timeout=15)
             data = response.json()

@@ -10,6 +10,7 @@ class CircuitBreaker:
         self.lastFailureTime = None
         self.state = 'CLOSED'
         self.lock = threading.Lock()
+        self.is_ignored = False
 
     def call(self, func, *args, **kwargs):
         print("CircuitBreaker: call invoked")
@@ -26,9 +27,13 @@ class CircuitBreaker:
                     raise CircuitBreakerOpenException("Circuit is open. Call denied.")
             
             try:
-                result = func(*args, **kwargs)
+                result = func(*args, **kwargs) 
             except self.expectedException as e:
                 print(f"Function raised an exception: {e}")
+                if e.response.status_code == 404:
+                    print("Exception is 404 Not Found, will be ignored for circuit breaker")
+                    raise e
+
                 self.failureCount += 1
                 print(f"Failure count: {self.failureCount}")
                 self.lastFailureTime = time.time()

@@ -6,7 +6,7 @@ import collector
 import os, time
 import grpc
 from concurrent import futures
-
+import kafkaProducer as kp
 sys.path.append(os.path.join(os.getcwd(), 'proto')) 
 import user_manager_pb2  
 import user_manager_pb2_grpc
@@ -20,11 +20,12 @@ app = flask.Flask(__name__)
 MONGO_URI = os.getenv('MONGO_URI', 'mongodb://localhost:27017')
 client = MongoClient(MONGO_URI)
 db = client.flight_data_db
-days = 10
+days = 1
 
 users_interests_collection = db.interests   
 flights_collection_arrival = db.flights_arrival
 flights_collection_departure = db.flights_departure
+producer = kp.KafkaProducer(topic='to-alert-system')
 print("Connected to MongoDB.")
 
 class DataCollectorServicer(data_collector_pb2_grpc.DataCollectorServicer):
@@ -39,6 +40,8 @@ class DataCollectorServicer(data_collector_pb2_grpc.DataCollectorServicer):
         print(f"Removed {response.deleted_count} interests for user: {email}")
         return data_collector_pb2.DataCollectorResponse(success = True)
     
+
+
 def run_grpc_server():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     data_collector_pb2_grpc.add_DataCollectorServicer_to_server(DataCollectorServicer(), server)
@@ -62,6 +65,7 @@ def update_flight_data():
     if not airports:
         print("Nessun aeroporto da monitorare.")
         return
+    sv ={}
     for airport in airports:
         print(f"Scaricamento dati per: {airport}...")
        
@@ -86,6 +90,13 @@ def update_flight_data():
                 print(f"Salvati {len(flightsDepartures)} voli partenza per {airport}")
             except Exception as e:
                 print(f"Errore salvataggio Mongo departures: {e}")
+        sv[airport] = {
+            "arrivals": flightsArrival,
+            "departures": flightsDepartures,
+            'users' : list(users_interests_collection.find({'airport_code': airport}))
+        }
+    producer.send_message({"status": "success", "message": "Flight data updated", "data": sv})
+
 
 def checkInterestExists(email, airport_code):
     result = users_interests_collection.find_one({'email': email, 'airport_code': airport_code})
@@ -97,7 +108,11 @@ scheduler.add_job(func=update_flight_data, trigger="interval", hours=12)
 scheduler.start()
 atexit.register(lambda: scheduler.shutdown())
 
-
+@app.route('/test', methods=['POST'])
+def test():
+    producer.send_message("Test message from Data Collector Service")
+    print(flights_collection_arrival.find_one())
+    return flask.jsonify({'status': 'success', 'message': 'Test message sent to Kafka'}), 200
 
 @app.route('/add_interest', methods=['POST'])
 def add_interest():
@@ -105,6 +120,21 @@ def add_interest():
     data = flask.request.get_json()
     email = data.get('email')
     airport_code = data.get('airport_code')
+    highValue = data.get('highValue')
+    lowValue = data.get('lowValue')
+
+    if lowValue is None and highValue is None:
+        return flask.jsonify({'status': 'error', 'message': 'At least one of lowValue or highValue must be provided'}), 400
+    else:
+        if lowValue is None:
+            lowValue = 0
+        if highValue is None:
+            highValue = 0
+        
+        if lowValue > highValue and lowValue != 0 and highValue != 0:
+            return flask.jsonify({'status': 'error', 'message': 'lowValue must be less than highValue'}), 400
+           
+
     if not email or not airport_code:
         return flask.jsonify({'status': 'error', 'message': 'Email and airport_code are required'}), 400
 
@@ -113,8 +143,8 @@ def add_interest():
         return flask.jsonify({'status': 'error', 'message': 'User does not exist'}), 404
     print(f"Adding interest for email: {email}, airport_code: {airport_code}")
     result = users_interests_collection.update_one(
-        {'email': email, 'airport_code': airport_code},
-        {'$set': {'email': email, 'airport_code': airport_code}},
+        {'email': email, 'airport_code': airport_code, 'lowValue': lowValue, 'highValue': highValue},
+        {'$set': {'email': email, 'airport_code': airport_code, 'lowValue': lowValue, 'highValue': highValue}},
         upsert=True
     )
     

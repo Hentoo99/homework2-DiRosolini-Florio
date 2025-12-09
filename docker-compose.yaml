@@ -1,6 +1,43 @@
 version: '3.8'
 
 services:
+
+  # -----------------------------------------------------------
+  # 0. Kafka server
+  # -----------------------------------------------------------
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: kafkaOpenSky
+    ports:
+      - "29092:29092"                  
+    environment:
+      # --- KRaft single node ---
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_NODE_ID: 1
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+      KAFKA_CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      
+      # FIX IMPORTANTE: Usa 'kafka' (nome del servizio) invece di nomi container errati
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:29093
+
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:29092,CONTROLLER://0.0.0.0:29093
+      
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+
+      # --- Dati ---
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    networks:
+      - flight_network 
+
   # -----------------------------------------------------------
   # 1. DATABASE USER MANAGER (MySQL)
   # -----------------------------------------------------------
@@ -19,8 +56,7 @@ services:
     networks:
       - flight_network
 
-
- # ------------------------------------
+  # ------------------------------------
   # 2. Database per Data Collector (MongoDB)
   # ------------------------------------
   data_db:
@@ -49,7 +85,6 @@ services:
       - "50051:50051"
     depends_on:
       - db
-  
     environment:
       - FLASK_APP=main.py
       - DB_HOST=db
@@ -61,7 +96,6 @@ services:
       - DATA-COLLECTOR_GRPC_PORT=50052
     networks:
       - flight_network
-  
   
   # -----------------------------------------------------------
   # 4. DATA COLLECTOR
@@ -77,20 +111,37 @@ services:
     depends_on:
       - db
       - user-manager
+      - kafka
     environment:
       - FLASK_APP=main.py
       - MONGO_URI=mongodb://admin:password123@data_db:27017
-      - OPENSKY_USERNAME=hentoo-api-client
-      - OPENSKY_PASSWORD=kltxoWgOEAjPFJKfePqCKSjqLmUMOT7g
+      - OPENSKY_USERNAME=gabbagg-api-client
+      - OPENSKY_PASSWORD=xizHxFkPe5HIgOQeEydZiBlTsPqQwWnv
       - USER_MANAGER_HOST=user-manager
       - USER_MANAGER_GRPC_PORT=50051
       - GRPC_PORT=50052
     networks:
       - flight_network
 
+  # -----------------------------------------------------------
+  # 5. ALERT SYSTEM
+  # -----------------------------------------------------------
+  alertsystem:
+    build:
+      context: ./alertSystem
+      dockerfile: Dockerfile
+    container_name: alert_system
+    environment:
+      - PYTHONUNBUFFERED=1  # <--- AGGIUNGI QUESTO
+    depends_on:
+      - kafka
+    networks:
+      - flight_network
+
 volumes:
   db_data:
   data_mongo_data:
+  kafka-data:
 
 networks:
   flight_network:
