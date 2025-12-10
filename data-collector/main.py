@@ -110,8 +110,18 @@ atexit.register(lambda: scheduler.shutdown())
 
 @app.route('/test', methods=['POST'])
 def test():
-    producer.send_message("Test message from Data Collector Service")
-    print(flights_collection_arrival.find_one())
+    sv = {}
+    sv['LICC'] ={
+        'arrivals': [1,2,3,4,5],
+        'departures': [6,7,8,9,10,3 ,4,5],
+        'users': list(users_interests_collection.find({'airport_code': 'LICC'}))
+    }
+    sv['LIML'] ={
+        'arrivals': [1,3,4,5],
+        'departures': [6,7,8,0],
+        'users': list(users_interests_collection.find({'airport_code': 'LIML'}))
+    }
+    producer.send_message({"status": "success", "message": "Flight data updated", "data": sv})
     return flask.jsonify({'status': 'success', 'message': 'Test message sent to Kafka'}), 200
 
 @app.route('/add_interest', methods=['POST'])

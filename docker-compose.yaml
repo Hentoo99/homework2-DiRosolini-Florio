@@ -115,8 +115,8 @@ services:
     environment:
       - FLASK_APP=main.py
       - MONGO_URI=mongodb://admin:password123@data_db:27017
-      - OPENSKY_USERNAME=gabbagg-api-client
-      - OPENSKY_PASSWORD=xizHxFkPe5HIgOQeEydZiBlTsPqQwWnv
+      - OPENSKY_USERNAME=hentoo-api-client
+      - OPENSKY_PASSWORD=gB9yg2q5f2qoe4BCq7L1NWI3yucq5qLB
       - USER_MANAGER_HOST=user-manager
       - USER_MANAGER_GRPC_PORT=50051
       - GRPC_PORT=50052
@@ -138,6 +138,20 @@ services:
     networks:
       - flight_network
 
+ # -----------------------------------------------------------
+  # 6. ALERT SYSTEM NOTIFIER
+  # -----------------------------------------------------------
+  alertsystemnotifier:
+    build:
+      context: ./alertSystemNotifier
+      dockerfile: Dockerfile
+    container_name: alert_system_notifier
+    environment:
+      - PYTHONUNBUFFERED=1  # <--- AGGIUNGI QUESTO
+    depends_on:
+      - kafka
+    networks:
+      - flight_network
 volumes:
   db_data:
   data_mongo_data:
