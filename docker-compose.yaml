@@ -81,8 +81,9 @@ services:
       dockerfile: user-manager/Dockerfile
     container_name: user_manager
     ports:
-      - "5002:5000"
       - "50051:50051"
+    expose:
+      - "5000"
     depends_on:
       - db
     environment:
@@ -106,8 +107,9 @@ services:
       dockerfile: data-collector/Dockerfile
     container_name: data_collector
     ports:
-      - "5001:5000"
       - "50052:50052"
+    expose:
+      - "5000"
     depends_on:
       - db
       - user-manager
@@ -152,10 +154,32 @@ services:
       - kafka
     networks:
       - flight_network
+
+  # -----------------------------------------------------------
+  # 7. NGINX SERVER
+  # -----------------------------------------------------------
+  nginx:
+    image: nginx:latest
+    container_name: nginx_routing
+    ports:
+      - "8080:80"
+    depends_on:
+      - user-manager
+      - data-collector
+    volumes:
+      - ./nginx/routing.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - flight_network
+    restart: always
+
+
+
 volumes:
   db_data:
   data_mongo_data:
   kafka-data:
+
+
 
 networks:
   flight_network:

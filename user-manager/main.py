@@ -85,6 +85,8 @@ def add_user():
     print("Received data for new user")
     data = flask.request.json
     request_id = data['request_id'] 
+    print(f"Processing request ID: {request_id}")
+    print(f"Cache: {cache}")
     print(f"Request ID: {request_id}")
     if not request_id:
             return flask.jsonify({"status": "Missing request_id"}), 400

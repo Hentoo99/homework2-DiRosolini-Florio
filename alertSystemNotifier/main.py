@@ -15,7 +15,7 @@ GROUP_ID = 'alert_system_group'
 SMTP_SERVER = os.getenv('SMTP_SERVER', 'smtp.gmail.com') # Esempio default Gmail
 SMTP_PORT = int(os.getenv('SMTP_PORT', '465'))           # Porta SSL
 SENDER_EMAIL = os.getenv('SENDER_EMAIL', 'gabrieleflorio18@gmail.com')
-SENDER_PASSWORD = os.getenv('SENDER_PASSWORD', 'kdqz mzxx rauu zoic')
+SENDER_PASSWORD = os.getenv('SENDER_PASSWORD', 'cugo drbr livg hefd')
 
 consumer_config = {
     'bootstrap.servers': BOOTSTRAP_SERVERS,
@@ -38,8 +38,9 @@ def wait_for_kafka():
             time.sleep(5)
 
 def send_email(data):
-
     msg = EmailMessage()
+    print(data)
+    print(type(data))
     msg['Subject'] = f"NOTIFICA: {data.get('airport', 'Un aeroporto')} ha molti voli!"
     msg['From'] = SENDER_EMAIL
     msg['To'] = data.get('user')
@@ -59,7 +60,7 @@ def send_email(data):
     context = ssl.create_default_context()
 
     try:
-        print(f"Tentativo invio email a {data.get('email')}...")
+        print(f"Tentativo invio email a {data.get('user')}...")
         with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT, context=context) as server:
             server.login(SENDER_EMAIL, SENDER_PASSWORD)
             server.send_message(msg)
