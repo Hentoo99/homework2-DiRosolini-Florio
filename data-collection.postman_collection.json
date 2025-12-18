@@ -14,7 +14,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\" : \"enricomariadr99@gmail.com\",\n    \"airport_code\": \"LICC\",\n    \"lowValue\" : 6,\n    \"highValue\": 10\n}",
+					"raw": "{\n    \"email\" : \"enricomariadr99@gmail.com\",\n    \"airport_code\": \"LICC\",\n    \"lowValue\" : 2,\n    \"highValue\": 5\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -51,16 +51,14 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:5001/get_flight",
-					"protocol": "http",
+					"raw": "https://localhost:8443/data-collector/get_flight",
+					"protocol": "https",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"localhost"
 					],
-					"port": "5001",
+					"port": "8443",
 					"path": [
+						"data-collector",
 						"get_flight"
 					]
 				}
@@ -82,16 +80,14 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:5001/list_interests",
-					"protocol": "http",
+					"raw": "https://localhost:8443/data-collector/list_interests",
+					"protocol": "https",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"localhost"
 					],
-					"port": "5001",
+					"port": "8443",
 					"path": [
+						"data-collector",
 						"list_interests"
 					]
 				}
@@ -105,7 +101,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\" : \"enricomariadr99@gmail.com\",\n    \"airport_code\": \"LIML\"\n}",
+					"raw": "{\n    \"email\" : \"enricomariadr99@gmail.com\",\n    \"airport_code\": \"LICC\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -113,16 +109,14 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:5001/rmv_interest",
-					"protocol": "http",
+					"raw": "https://localhost:8443/data-collector/rmv_interest",
+					"protocol": "https",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"localhost"
 					],
-					"port": "5001",
+					"port": "8443",
 					"path": [
+						"data-collector",
 						"rmv_interest"
 					]
 				}
@@ -135,16 +129,14 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "http://127.0.0.1:5001/force_update",
-					"protocol": "http",
+					"raw": "https://localhost:8443/data-collector/force_update",
+					"protocol": "https",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"localhost"
 					],
-					"port": "5001",
+					"port": "8443",
 					"path": [
+						"data-collector",
 						"force_update"
 					]
 				}
@@ -166,16 +158,14 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:5001/get_last_flight",
-					"protocol": "http",
+					"raw": "https://localhost:8443/data-collector/get_last_flight",
+					"protocol": "https",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"localhost"
 					],
-					"port": "5001",
+					"port": "8443",
 					"path": [
+						"data-collector",
 						"get_last_flight"
 					]
 				}
@@ -189,7 +179,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\" : \"enricomariadr99@gmail.com\",\n    \"airport_code\": \"LIML\",\n    \"days\": 2\n}",
+					"raw": "{\n    \"email\" : \"enricomariadr99@gmail.com\",\n    \"airport_code\": \"LICC\",\n    \"days\": 2\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -197,16 +187,14 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:5001/average",
-					"protocol": "http",
+					"raw": "https://localhost:8443/data-collector/average",
+					"protocol": "https",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"localhost"
 					],
-					"port": "5001",
+					"port": "8443",
 					"path": [
+						"data-collector",
 						"average"
 					]
 				}
@@ -228,16 +216,14 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:5001/get_arrivals",
-					"protocol": "http",
+					"raw": "https://localhost:8443/data-collector/get_arrivals",
+					"protocol": "https",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"localhost"
 					],
-					"port": "5001",
+					"port": "8443",
 					"path": [
+						"data-collector",
 						"get_arrivals"
 					]
 				}
@@ -251,7 +237,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"email\" : \"enricomariadr99@gmail.com\",\r\n    \"airport_code\": \"LIML\",\r\n    \"lowValue\" : 1,\r\n    \"highValue\": 11\r\n}",
+					"raw": "{\r\n    \"email\" : \"enricomariadr99@gmail.com\",\r\n    \"airport_code\": \"LICC\",\r\n    \"lowValue\" : 1,\r\n    \"highValue\": 11\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"

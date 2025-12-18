@@ -31,7 +31,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"request_id\": 236731362723243824,\n    \"email\" : \"enricomariadr99@gmail.com\",\n    \"name\" : \"Enricomaria\",\n    \"surname\": \"Di Rosolini\",\n    \"age\" : 27,\n    \"CF\" : \"THGLIU99A13F343J\",\n    \"phone\": \"372837283\"\n}",
+					"raw": "{\n    \"request_id\": 22671306272438214,\n    \"email\" : \"enricomariadr99@gmail.com\",\n    \"name\" : \"Enricomaria\",\n    \"surname\": \"Di Rosolini\",\n    \"age\" : 27,\n    \"CF\" : \"THGLIU99A13F343J\",\n    \"phone\": \"372837283\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -39,12 +39,12 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/user-manager/add_user",
-					"protocol": "http",
+					"raw": "https://localhost:8443/user-manager/add_user",
+					"protocol": "https",
 					"host": [
 						"localhost"
 					],
-					"port": "8080",
+					"port": "8443",
 					"path": [
 						"user-manager",
 						"add_user"
@@ -72,12 +72,12 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/user-manager/get_user",
-					"protocol": "http",
+					"raw": "https://localhost:8443/user-manager/get_user",
+					"protocol": "https",
 					"host": [
 						"localhost"
 					],
-					"port": "8080",
+					"port": "8443",
 					"path": [
 						"user-manager",
 						"get_user"
@@ -104,12 +104,12 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/user-manager/rmv_user",
-					"protocol": "http",
+					"raw": "https://localhost:8443/user-manager/rmv_user",
+					"protocol": "https",
 					"host": [
 						"localhost"
 					],
-					"port": "8080",
+					"port": "8443",
 					"path": [
 						"user-manager",
 						"rmv_user"
