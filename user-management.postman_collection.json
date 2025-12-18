@@ -1,11 +1,11 @@
 {
 	"info": {
-		"_postman_id": "b4f94968-7674-48f2-90e6-959d66347aff",
+		"_postman_id": "609cafcb-709f-44b3-8d58-25f6154489b7",
 		"name": "user-management",
 		"description": "### Welcome to Postman! This is your first collection.\n\nCollections are your starting point for building and testing APIs. You can use this one to:\n\n• Group related requests  \n• Test your API in real-world scenarios  \n• Document and share your requests\n\nUpdate the name and overview whenever you’re ready to make it yours.\n\n[Learn more about Postman Collections.](https://learning.postman.com/docs/collections/collections-overview/)",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "50290595",
-		"_collection_link": "https://hentollination-8637016.postman.co/workspace/Enricomaria-Di-Rosolini's-Works~e875f253-9a26-4250-8c2e-928ae5ad4f7e/collection/50290595-b4f94968-7674-48f2-90e6-959d66347aff?action=share&source=collection_link&creator=50290595"
+		"_exporter_id": "50293053",
+		"_collection_link": "https://gabrieleflorio01-6860758.postman.co/workspace/Gabriele-Florio's-Workspace~6c6119da-6e08-48b7-8fc1-34c8bdd0e398/collection/50293053-609cafcb-709f-44b3-8d58-25f6154489b7?action=share&source=collection_link&creator=50293053"
 	},
 	"item": [
 		{

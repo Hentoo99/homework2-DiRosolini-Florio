@@ -6,14 +6,13 @@ import smtplib
 import ssl
 from email.message import EmailMessage
 
-# --- CONFIGURAZIONE KAFKA ---
+
 BOOTSTRAP_SERVERS = os.getenv('KAFKA_BOOTSTRAP_SERVERS', 'kafka:9092')
 TOPIC = 'to-notifier'
-GROUP_ID = 'alert_system_group'
+GROUP_ID = 'alert_notifier_group'
 
-# --- CONFIGURAZIONE EMAIL (da Variabili d'Ambiente) ---
-SMTP_SERVER = os.getenv('SMTP_SERVER', 'smtp.gmail.com') # Esempio default Gmail
-SMTP_PORT = int(os.getenv('SMTP_PORT', '465'))           # Porta SSL
+SMTP_SERVER = os.getenv('SMTP_SERVER', 'smtp.gmail.com') 
+SMTP_PORT = int(os.getenv('SMTP_PORT', '465'))          
 SENDER_EMAIL = os.getenv('SENDER_EMAIL', 'gabrieleflorio18@gmail.com')
 SENDER_PASSWORD = os.getenv('SENDER_PASSWORD', 'cugo drbr livg hefd')
 
@@ -45,7 +44,6 @@ def send_email(data):
     msg['From'] = SENDER_EMAIL
     msg['To'] = data.get('user')
     
-    # Formattiamo il corpo dell'email in modo leggibile
     content = f"""
     Ciao,
     è stata rilevata una variazione significativa nel numero di voli presso l'aeroporto {data.get('airport', 'unknown')}.
@@ -88,7 +86,7 @@ class KafkaConsumerWrapper:
             return json.loads(val_utf8)
         except Exception as e:
             print(f"Errore decodifica: {e}")
-            return None # Ignoriamo messaggi malformati
+            return None 
 
     def commit_offsets(self):
         self.consumer.commit()

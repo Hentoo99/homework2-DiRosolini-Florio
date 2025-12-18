@@ -4,8 +4,6 @@ import os
 import time
 import sys
 
-# Configurazione base
-# Legge la variabile d'ambiente definita nel docker-compose
 BOOTSTRAP_SERVERS = os.getenv('KAFKA_BOOTSTRAP_SERVERS', 'kafka:9092')
 TOPIC = 'to-alert-system'
 GROUP_ID = 'alert_system_group'
@@ -34,10 +32,7 @@ def wait_for_kafka():
     print(f"Tentativo di connessione a Kafka su: {BOOTSTRAP_SERVERS}...")
     while True:
         try:
-            # Creiamo un consumer temporaneo per testare la connessione
-            # Non serve sottoscriversi, basta istanziarlo e chiedere i metadata
             temp_consumer = Consumer(consumer_config)
-            # list_topics è una chiamata di rete: se fallisce, Kafka è giù
             temp_consumer.list_topics(timeout=5.0)
             temp_consumer.close()
             print("--- KAFKA È PRONTO! Connessione stabilita. ---")
@@ -94,7 +89,7 @@ class KafkaConsumerWrapper:
             try:
                 value = json.loads(val_utf8)
             except json.JSONDecodeError:
-                value = val_utf8 # Ritorna la stringa grezza se non è JSON
+                value = val_utf8 
                 
             return value
         except Exception as e:

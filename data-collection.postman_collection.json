@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "54edda6f-3c6c-4f15-9361-281d414622e1",
+		"_postman_id": "314b1c00-8017-43cd-bc0b-23b5841e0d72",
 		"name": "data-collection",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "50290595",
-		"_collection_link": "https://hentollination-8637016.postman.co/workspace/Enricomaria-Di-Rosolini's-Works~e875f253-9a26-4250-8c2e-928ae5ad4f7e/collection/50290595-54edda6f-3c6c-4f15-9361-281d414622e1?action=share&source=collection_link&creator=50290595"
+		"_exporter_id": "50293053",
+		"_collection_link": "https://gabrieleflorio01-6860758.postman.co/workspace/Gabriele-Florio's-Workspace~6c6119da-6e08-48b7-8fc1-34c8bdd0e398/collection/50293053-314b1c00-8017-43cd-bc0b-23b5841e0d72?action=share&source=collection_link&creator=50293053"
 	},
 	"item": [
 		{
@@ -14,7 +14,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\" : \"enricomariadr99@gmail.com\",\n    \"airport_code\": \"LICC\",\n    \"lowValue\" : 2,\n    \"highValue\": 5\n}",
+					"raw": "{\n    \"email\" : \"enricomariadr99@gmail.com\",\n    \"airport_code\": \"LICC\",\n    \"lowValue\" : 6,\n    \"highValue\": 10\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -22,16 +22,14 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/data-collector/add_interest",
-					"protocol": "http",
+					"raw": "https://localhost:8443/data-collector/add_interest",
+					"protocol": "https",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"localhost"
 					],
-					"port": "5001",
+					"port": "8443",
 					"path": [
+						"data-collector",
 						"add_interest"
 					]
 				}
@@ -53,7 +51,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/data-collector/get_flight",
+					"raw": "http://127.0.0.1:5001/get_flight",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -84,7 +82,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/data-collector/list_interests",
+					"raw": "http://127.0.0.1:5001/list_interests",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -115,7 +113,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/data-collector/rmv_interest",
+					"raw": "http://127.0.0.1:5001/rmv_interest",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -137,7 +135,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/data-collector/force_update",
+					"raw": "http://127.0.0.1:5001/force_update",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -168,7 +166,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/data-collector/get_last_flight",
+					"raw": "http://127.0.0.1:5001/get_last_flight",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -199,7 +197,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/data-collector/average",
+					"raw": "http://127.0.0.1:5001/average",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -230,7 +228,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/data-collector/get_arrivals",
+					"raw": "http://127.0.0.1:5001/get_arrivals",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -247,22 +245,29 @@
 			"response": []
 		},
 		{
-			"name": "test",
+			"name": "modify_interest_param",
 			"request": {
 				"method": "POST",
 				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\" : \"enricomariadr99@gmail.com\",\r\n    \"airport_code\": \"LIML\",\r\n    \"lowValue\" : 1,\r\n    \"highValue\": 11\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
-					"raw": "http://localhost:8080/data-collector/test",
-					"protocol": "http",
+					"raw": "https://localhost:8443/data-collector/modify_interest_param",
+					"protocol": "https",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"localhost"
 					],
-					"port": "5001",
+					"port": "8443",
 					"path": [
-						"test"
+						"data-collector",
+						"modify_interest_param"
 					]
 				}
 			},

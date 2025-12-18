@@ -32,17 +32,22 @@ app = flask.Flask(__name__)
 
 
 def get_is_inserted(data):
-    if db_conn.is_connected():
-        cursor = db_conn.cursor()
-        QUERY = "SELECT * FROM users WHERE email = %s"
-        valori = (data['email'], )
-        cursor.execute(QUERY, valori)
-        result = cursor.fetchone()
-        if result:
-            print("User already exists in the database")
-            return True
-    print("User does not exist in the database")
-    return False
+    db_conn = get_db_connection()
+    try:
+        if db_conn.is_connected():
+            cursor = db_conn.cursor()
+            QUERY = "SELECT * FROM users WHERE email = %s"
+            valori = (data['email'], )
+            cursor.execute(QUERY, valori)
+            result = cursor.fetchone()
+            if result:
+                print("User already exists in the database")
+                return True
+        print("User does not exist in the database")
+        return False
+    finally:
+        if db_conn.is_connected():
+            db_conn.close()
 
 
 def run_grpc_server():
@@ -73,7 +78,7 @@ def get_db_connection():
     
     raise Exception("Impossibile connettersi al database dopo vari tentativi.")
 
-db_conn = get_db_connection()
+#db_conn = get_db_connection()
 
 @app.route('/')
 def home():
@@ -81,58 +86,68 @@ def home():
 
 @app.route('/add_user', methods=['POST'])
 def add_user():
-    global cache
-    print("Received data for new user")
-    data = flask.request.json
-    request_id = data['request_id'] 
-    print(f"Processing request ID: {request_id}")
-    print(f"Cache: {cache}")
-    print(f"Request ID: {request_id}")
-    if not request_id:
-            return flask.jsonify({"status": "Missing request_id"}), 400
-    with cache_lock:
-        if request_id in cache:
-            return flask.jsonify({"status": "Duplicate request", "user": cache[request_id]})
-    
-    if(db_conn.is_connected()):
-        if not get_is_inserted(flask.request.json):
-            print("Adding new user to the database")
-            cursor =  db_conn.cursor()
-            
-            QUERY = "INSERT INTO users (email, name, surname, age, CF, phone) VALUES (%s, %s, %s, %s, %s, %s)"
-            valori = (data['email'], data['name'], data['surname'], data['age'], data['CF'], data['phone'])
-            cursor.execute(QUERY, valori)
-            db_conn.commit()
-            if cursor.rowcount > 0:
-                response = "User added successfully"
-            else:
-                response = "Failed to add user"
-            with cache_lock:
-                cache[request_id] = {
-                    "response": response,
-                    "timestamp": time.time()
-                }
-            return flask.jsonify({"status": response, "user": data})
-        return flask.jsonify({"status": "User already exists", "user": flask.request.json})
-    return flask.jsonify({"status": "DB not connected"})
+    db_conn = get_db_connection()
+    try:
+        global cache
+        print("Received data for new user")
+        data = flask.request.json
+        request_id = data['request_id'] 
+        print(f"Processing request ID: {request_id}")
+        print(f"Cache: {cache}")
+        print(f"Request ID: {request_id}")
+        if not request_id:
+                return flask.jsonify({"status": "Missing request_id"}), 400
+        with cache_lock:
+            if request_id in cache:
+                return flask.jsonify({"status": "Duplicate request", "user": cache[request_id]})
+        
+        if(db_conn.is_connected()):
+            if not get_is_inserted(flask.request.json):
+                print("Adding new user to the database")
+                cursor =  db_conn.cursor()
+                
+                QUERY = "INSERT INTO users (email, name, surname, age, CF, phone) VALUES (%s, %s, %s, %s, %s, %s)"
+                valori = (data['email'], data['name'], data['surname'], data['age'], data['CF'], data['phone'])
+                cursor.execute(QUERY, valori)
+                db_conn.commit()
+                if cursor.rowcount > 0:
+                    response = "User added successfully"
+                else:
+                    response = "Failed to add user"
+                with cache_lock:
+                    cache[request_id] = {
+                        "response": response,
+                        "timestamp": time.time()
+                    }
+                return flask.jsonify({"status": response, "user": data})
+            return flask.jsonify({"status": "User already exists", "user": flask.request.json})
+        return flask.jsonify({"status": "DB not connected"})
+    finally:
+        if db_conn.is_connected():
+            db_conn.close()
 
 
 
 @app.route('/get_user', methods=['POST'])
 def get_user():
-    print("Received request to get user")
-    if(db_conn.is_connected()):
-        cursor =  db_conn.cursor(dictionary=True)
-        data = flask.request.json
-        QUERY = "SELECT * FROM users WHERE email = %s"
-        valori = (data['email'], )
-        cursor.execute(QUERY, valori)
-        result = cursor.fetchone()
-        if result:
-            print("User retrieved successfully")
-            return flask.jsonify({"status": "User found", "user": result})
-        return flask.jsonify({"status": "User not found", "email": data['email']})
-    return flask.jsonify({"status": "DB not connected"})
+    db_conn = get_db_connection()
+    try:
+        print("Received request to get user")
+        if(db_conn.is_connected()):
+            cursor =  db_conn.cursor(dictionary=True)
+            data = flask.request.json
+            QUERY = "SELECT * FROM users WHERE email = %s"
+            valori = (data['email'], )
+            cursor.execute(QUERY, valori)
+            result = cursor.fetchone()
+            if result:
+                print("User retrieved successfully")
+                return flask.jsonify({"status": "User found", "user": result})
+            return flask.jsonify({"status": "User not found", "email": data['email']})
+        return flask.jsonify({"status": "DB not connected"})
+    finally:
+        if db_conn.is_connected():
+            db_conn.close()
     
 def removeInterests(email):
     print(f"Removing interests for user: {email}")
@@ -144,24 +159,29 @@ def removeInterests(email):
     return True
 @app.route('/rmv_user', methods=['POST'])
 def rmv_user():
-    print("Received request to remove user")
-    if(db_conn.is_connected()):
-        print("Checking if user exists for removal")
-        if get_is_inserted(flask.request.json):
-            cursor =  db_conn.cursor()
-            data = flask.request.json
-            QUERY = "DELETE FROM users WHERE email = %s"
-            valori = (data['email'], )
-            cursor.execute(QUERY, valori)
-            db_conn.commit()
-            if cursor.rowcount > 0:
-                if removeInterests(data['email']):
-                    print("User removed successfully")
-                    return flask.jsonify({"status": "User removed", "email": data['email']})
-                return flask.jsonify({"status": "User doesn't have interests, but is removed", "email": data['email']})
-            return flask.jsonify({"status": "User not removed", "email": data['email']})
-        return flask.jsonify({"status": "User does not exist", "email": flask.request.json['email']})
-    return flask.jsonify({"status": "DB not connected"})
+    db_conn = get_db_connection()
+    try:
+        print("Received request to remove user")
+        if(db_conn.is_connected()):
+            print("Checking if user exists for removal")
+            if get_is_inserted(flask.request.json):
+                cursor =  db_conn.cursor()
+                data = flask.request.json
+                QUERY = "DELETE FROM users WHERE email = %s"
+                valori = (data['email'], )
+                cursor.execute(QUERY, valori)
+                db_conn.commit()
+                if cursor.rowcount > 0:
+                    if removeInterests(data['email']):
+                        print("User removed successfully")
+                        return flask.jsonify({"status": "User removed", "email": data['email']})
+                    return flask.jsonify({"status": "User doesn't have interests, but is removed", "email": data['email']})
+                return flask.jsonify({"status": "User not removed", "email": data['email']})
+            return flask.jsonify({"status": "User does not exist", "email": flask.request.json['email']})
+        return flask.jsonify({"status": "DB not connected"})
+    finally:
+        if db_conn.is_connected():
+            db_conn.close()
 
 if __name__ == '__main__':
     server = threading.Thread(target=run_grpc_server)

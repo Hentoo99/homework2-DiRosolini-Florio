@@ -56,8 +56,10 @@ def check_user_exists(email):
     with grpc.insecure_channel('user-manager:50051') as channel:
         stub = user_manager_pb2_grpc.UserManagerStub(channel)
         response = stub.CheckUserExists(user_manager_pb2.CheckUserExistsRequest(email=email))
+        print(f"User existence response: {response}")
         if not response.exists:
             return False
+        print("User exists.")
     return True
 def update_flight_data():
     print("--- Avvio aggiornamento ciclico voli ---")
@@ -108,21 +110,6 @@ scheduler.add_job(func=update_flight_data, trigger="interval", hours=12)
 scheduler.start()
 atexit.register(lambda: scheduler.shutdown())
 
-@app.route('/test', methods=['POST'])
-def test():
-    sv = {}
-    sv['LICC'] ={
-        'arrivals': [1,2,3,4,5],
-        'departures': [6,7,8,9,10,3 ,4,5],
-        'users': list(users_interests_collection.find({'airport_code': 'LICC'}))
-    }
-    sv['LIML'] ={
-        'arrivals': [1,3,4,5],
-        'departures': [6,7,8,0],
-        'users': list(users_interests_collection.find({'airport_code': 'LIML'}))
-    }
-    producer.send_message({"status": "success", "message": "Flight data updated", "data": sv})
-    return flask.jsonify({'status': 'success', 'message': 'Test message sent to Kafka'}), 200
 
 @app.route('/add_interest', methods=['POST'])
 def add_interest():
@@ -197,10 +184,53 @@ def list_interests():
     if not check_user_exists(email):
         return flask.jsonify({'status': 'error', 'message': 'User does not exist'}), 404
 
-    interests = list(users_interests_collection.find({'email': email}, {'_id': 0, 'airport_code': 1}))
-    airport_codes = [interest['airport_code'] for interest in interests]
+    interests = list(users_interests_collection.find({'email': email}, {'_id': 0, 'airport_code': 1, 'lowValue': 1, 'highValue': 1}))
+    print(f"Found interests: {interests}")
+    sv = {}
+    for interest in interests:
+        airport_codes = {'airport_code': interest['airport_code'],'lowValue': interest['lowValue'],'highValue': interest['highValue']}
+        sv[interest['airport_code']] = airport_codes
+        print(airport_codes)
+    
+    return flask.jsonify({'status': 'success', 'interests': sv}), 200
 
-    return flask.jsonify({'status': 'success', 'interests': airport_codes}), 200
+@app.route('/modify_interest_param', methods=['POST'])
+def modify_interest_param():
+    print("Received request to modify user interest parameters via REST API")
+    data = flask.request.get_json()
+    email = data.get('email')
+    airport_code = data.get('airport_code')
+    highValue = data.get('highValue')
+    lowValue = data.get('lowValue')
+
+    if not email or not airport_code:
+        return flask.jsonify({'status': 'error', 'message': 'Email and airport_code are required'}), 400
+
+    if lowValue is None and highValue is None:
+        return flask.jsonify({'status': 'error', 'message': 'At least one of lowValue or highValue must be provided'}), 400
+    else:
+        if lowValue is None:
+            lowValue = 0
+        if highValue is None:
+            highValue = 0
+        
+        if lowValue > highValue and lowValue != 0 and highValue != 0:
+            return flask.jsonify({'status': 'error', 'message': 'lowValue must be less than highValue'}), 400
+
+    if not check_user_exists(email):
+        return flask.jsonify({'status': 'error', 'message': 'User does not exist'}), 404
+
+    result = users_interests_collection.update_one(
+        {'email': email, 'airport_code': airport_code},
+        {'$set': {'lowValue': lowValue, 'highValue': highValue}}
+    )
+
+    if result.matched_count == 0:
+        return flask.jsonify({'status': 'error', 'message': 'No such interest found'}), 404
+
+    return flask.jsonify({'status': 'success', 'message': f'Interest parameters for {airport_code} updated for {email}'}), 200
+    
+
 
 @app.route('/get_flight', methods=['POST'])
 def get_flight():
