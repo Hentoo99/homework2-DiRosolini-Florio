@@ -1,4 +1,4 @@
-# Homework 1 DSBD
+# Homework 2 DSBD
 
 ## Introduzione
 
@@ -35,6 +35,7 @@ Nella directory **root** del progetto sono presenti due file di collezione **Pos
   * `POST /force_update`: Forza l'aggiornamento dei dati dal servizio esterno.
   * `POST /average`: Calcola la media dei voli degli ultimi X giorni.
   * `POST /get_arrivals`: Ottiene voli in arrivo che partono da un determinato aeroporto.
+  * `POST /modify_interest_param`: Permette di modificare i parametri lowValue e highValue.
 
 ## Autori
   * Florio Gabriele
