@@ -10,6 +10,7 @@ Il sistema integra il servizio esterno **OpenSky Network** per recuperare dati i
   * Docker Compose
 
 ## Avvio del Progetto
+Prima di tutto bisogna generare una password per le app tramite il proprio account google, aprire il file che si trova nel seguente percorso: ../alertSystemNotifier/main.py e inserire la propria email e la password generata nelle rispettive voci sender_email e sender_password, infine salvare le modifiche.
 Per avviare l'intera suite di microservizi e database, posizionarsi nella directory **root** del progetto ed eseguire il seguente comando da terminale:
 
 ```bash
